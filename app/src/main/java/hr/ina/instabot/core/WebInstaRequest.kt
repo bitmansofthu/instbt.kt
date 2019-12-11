@@ -14,41 +14,19 @@ class WebInstaRequest(private val cookieManager : InstaCookieManager) : InstaReq
         const val EXPLORE_URL = "https://www.instagram.com/explore/tags/"
     }
 
-    override fun like(mediaid: String, callback: InstaResponseCallback?) {
-        HttpClient.get(LIKE_URL, cookieManager, object : Callback {
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                callback?.onResponse(InstaResponse(response), null)
-            }
-
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                callback?.onResponse(null, e)
-            }
-        })
+    override fun like(mediaid: String) : InstaResponse {
+        val resp = HttpClient.post(LIKE_URL, cookieManager).execute()
+        return InstaResponse(resp)
     }
 
-    override fun follow(userid: String, callback: InstaResponseCallback?) {
-        HttpClient.get(FOLLOW_URL, cookieManager, object : Callback {
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                callback?.onResponse(InstaResponse(response), null)
-            }
-
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                callback?.onResponse(null, e)
-            }
-        })
+    override fun follow(userid: String) : InstaResponse {
+        val resp = HttpClient.post(FOLLOW_URL, cookieManager).execute()
+        return InstaResponse(resp)
     }
 
-    override fun explore(hashtag: String, callback: InstaResponseCallback?) {
-        HttpClient.get("$EXPLORE_URL$hashtag/", cookieManager, object : Callback {
-            override fun onResponse(call: okhttp3.Call, response: Response) {
-                //println(response.body?.string())
-                callback?.onResponse(ExploreInstaResponse(response), null)
-            }
-
-            override fun onFailure(call: okhttp3.Call, e: IOException) {
-                callback?.onResponse(null, e)
-            }
-        })
+    override fun explore(hashtag: String) : ExploreInstaResponse {
+        val resp = HttpClient.get("$EXPLORE_URL$hashtag/", cookieManager).execute()
+        return ExploreInstaResponse(resp)
     }
 
 }
