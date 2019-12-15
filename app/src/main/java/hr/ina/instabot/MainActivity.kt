@@ -22,8 +22,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        HttpClient.initClient()
-
         //WebInstaRequest(InstaCookieManager(Settings.getHeaderStorage(this))).explore("eskuvo", object : InstaResponseCallback {
         //    override fun onResponse(response: InstaResponse?, failure: IOException?) {
 
