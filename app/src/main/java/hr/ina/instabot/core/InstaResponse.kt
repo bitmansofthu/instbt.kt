@@ -4,10 +4,10 @@ import okhttp3.Response
 
 open class InstaResponse(response: Response) {
 
-    var statusCode = response.code
+    val statusCode = response.code
 
     init {
-
+        //Log.d(InstaResponse::class.simpleName,response.body?.string() ?: "No response body")
     }
 
 }

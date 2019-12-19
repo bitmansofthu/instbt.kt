@@ -41,7 +41,32 @@ class ExampleInstrumentedTest {
 
         assertTrue(resp.statusCode == 200)
 
+        val len = resp.medias.size
+        assertTrue(len > 0)
+    }
 
+    @Test
+    fun testHashTagExploreAndLike() {
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val hdrs = Settings.getHeaderStorage(appContext)
+        val cookie = InstaCookieManager(hdrs)
 
+        val loggedIn = cookie.isLoggedIn
+
+        assertTrue(loggedIn)
+
+        val req = WebInstaRequest(cookie)
+        val exploreResp = req.explore("eskuvo")
+
+        assertTrue(exploreResp.statusCode == 200)
+
+        val len = exploreResp.medias?.size
+        assertTrue(len > 0)
+
+        val media = exploreResp.medias[0]
+        assertNotNull("mediaId cant be null", media.mediaId)
+
+        val likeResp = req.like(media!!.mediaId!!)
+        assertTrue(likeResp.statusCode == 200)
     }
 }
