@@ -30,9 +30,6 @@ class MainActivity : AppCompatActivity() {
 
         //Navigation(this).showLogin()
 
-        val login = InstaCookieManager(Settings.getHeaderStorage(this)).isLoggedIn
-        Log.d(TAG, if (login) "Logged in" else "Not logged in")
-
         //supportFragmentManager.beginTransaction().replace(R.id.container, LoginFragment.newInstance()).commit()
     }
 }
