@@ -35,7 +35,8 @@ class ExploreInstaResponse(response: Response) : InstaResponse(response) {
                     val media = InstaMedia(
                         node?.getString("id"),
                         node?.getJSONObject("edge_liked_by")?.getInt("count"),
-                        if (node?.getLong("taken_at_timestamp") != null) Date(node?.getLong("taken_at_timestamp")!!) else null
+                        if (node?.getLong("taken_at_timestamp") != null) Date(node?.getLong("taken_at_timestamp")!!) else null,
+                        node?.getJSONObject("owner")?.getString("id")
                     )
                     medias.add(media)
                 }

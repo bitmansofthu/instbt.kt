@@ -10,7 +10,7 @@ class WebInstaRequest(private val cookieManager : InstaCookieManager) : InstaReq
 
     override fun like(mediaid: String) : InstaResponse {
         val resp = HttpClient.post("https://www.instagram.com/web/likes/$mediaid/like/", cookieManager).execute()
-        return InstaResponse(resp)
+        return JsonInstaResponse(resp)
     }
 
     override fun follow(userid: String) : InstaResponse {
