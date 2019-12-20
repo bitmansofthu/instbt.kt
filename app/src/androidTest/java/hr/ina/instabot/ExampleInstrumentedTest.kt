@@ -69,4 +69,30 @@ class ExampleInstrumentedTest {
         val likeResp = req.like(media!!.mediaId!!)
         assertTrue(likeResp.statusCode == 200)
     }
+
+    @Test
+    fun testHashTagExploreAndMediaInfo() {
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val hdrs = Settings.getHeaderStorage(appContext)
+        val cookie = InstaCookieManager(hdrs)
+
+        val loggedIn = cookie.isLoggedIn
+
+        assertTrue(loggedIn)
+
+        val req = WebInstaRequest(cookie)
+        val exploreResp = req.explore("eskuvo")
+
+        assertTrue(exploreResp.statusCode == 200)
+
+        val len = exploreResp.medias?.size
+        assertTrue(len > 0)
+
+        val media = exploreResp.medias[0]
+        assertNotNull("mediaShortCode cant be null", media.shortCode)
+
+        val mediaResp = req.getMediaInfo(media!!.shortCode!!)
+        assertTrue(mediaResp.statusCode == 200)
+        assertNotNull(mediaResp.userName)
+    }
 }

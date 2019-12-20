@@ -8,6 +8,6 @@ interface InstaRequest {
 
     fun explore(hashtag: String) : ExploreInstaResponse
 
-    //fun getUsernameFromMediaId(hashtag: String) : ExploreInstaResponse
+    fun getMediaInfo(mediaShortCode: String) : MediaInstaResponse
 
 }

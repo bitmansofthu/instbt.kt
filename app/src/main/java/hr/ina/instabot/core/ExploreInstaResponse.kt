@@ -9,9 +9,7 @@ import java.lang.Exception
 import java.util.*
 import kotlin.collections.ArrayList
 
-class ExploreInstaResponse(response: Response) : InstaResponse(response) {
-
-    val html:InstaHtmlParser?
+class ExploreInstaResponse(response: Response) : HtmlInstaResponse(response) {
 
     val medias: List<InstaMedia>
         get() {
@@ -34,6 +32,7 @@ class ExploreInstaResponse(response: Response) : InstaResponse(response) {
                     val node = edges?.getJSONObject(i)!!.getJSONObject("node")
                     val media = InstaMedia(
                         node?.getString("id"),
+                        node?.getString("shortcode"),
                         node?.getJSONObject("edge_liked_by")?.getInt("count"),
                         if (node?.getLong("taken_at_timestamp") != null) Date(node?.getLong("taken_at_timestamp")!!) else null,
                         node?.getJSONObject("owner")?.getString("id")
@@ -46,11 +45,6 @@ class ExploreInstaResponse(response: Response) : InstaResponse(response) {
         }
 
     init {
-        if (response.body != null) {
-            html = InstaHtmlParser(response.body!!.string())
-        } else {
-            html = null
-        }
     }
 
 }

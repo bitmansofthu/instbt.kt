@@ -23,4 +23,8 @@ class WebInstaRequest(private val cookieManager : InstaCookieManager) : InstaReq
         return ExploreInstaResponse(resp)
     }
 
+    override fun getMediaInfo(mediaShortCode: String) : MediaInstaResponse {
+        val resp = HttpClient.get("https://www.instagram.com/p/$mediaShortCode/", cookieManager).execute()
+        return MediaInstaResponse(resp)
+    }
 }
