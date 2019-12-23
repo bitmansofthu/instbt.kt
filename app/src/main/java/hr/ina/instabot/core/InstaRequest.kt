@@ -10,4 +10,6 @@ interface InstaRequest {
 
     fun getMediaInfo(mediaShortCode: String) : MediaInstaResponse
 
+    fun getUserInfo(userName: String) : UserInfoInstaResponse
+
 }

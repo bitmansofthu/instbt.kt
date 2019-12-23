@@ -9,7 +9,7 @@ class App : Application() {
     override fun onCreate() {
         super.onCreate()
 
-        AppDatabase.initDatabase(applicationContext)
+        AppDatabase.initDatabase(applicationContext, "instabot_db")
         HttpClient.initClient()
     }
 

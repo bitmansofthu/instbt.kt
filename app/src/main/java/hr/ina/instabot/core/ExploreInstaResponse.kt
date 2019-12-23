@@ -31,11 +31,11 @@ class ExploreInstaResponse(response: Response) : HtmlInstaResponse(response) {
                 for (i in 0 until edges.length()) {
                     val node = edges?.getJSONObject(i)!!.getJSONObject("node")
                     val media = InstaMedia(
-                        node?.getString("id"),
-                        node?.getString("shortcode"),
-                        node?.getJSONObject("edge_liked_by")?.getInt("count"),
-                        if (node?.getLong("taken_at_timestamp") != null) Date(node?.getLong("taken_at_timestamp")!!) else null,
-                        node?.getJSONObject("owner")?.getString("id")
+                        node?.optString("id"),
+                        node?.optString("shortcode"),
+                        node?.optJSONObject("edge_liked_by")?.optInt("count"),
+                        if (node?.has("taken_at_timestamp") == true) Date(node?.getLong("taken_at_timestamp")!!) else null,
+                        node?.optJSONObject("owner")?.optString("id")
                     )
                     medias.add(media)
                 }

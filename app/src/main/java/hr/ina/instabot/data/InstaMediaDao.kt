@@ -12,9 +12,9 @@ interface InstaMediaDao {
     fun findMediaById(mediaId: String): InstaMedia
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
-    suspend fun insertMedia(media: InstaMedia): Long
+    fun insertMedia(media: InstaMedia): Long
 
     @Delete
-    suspend fun deleteMedia(media: InstaMedia)
+    fun deleteMedia(media: InstaMedia)
 
 }

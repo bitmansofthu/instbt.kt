@@ -16,8 +16,8 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         @Volatile private var database: AppDatabase? = null
 
-        fun initDatabase(ctx: Context) {
-            database = buildDatabase(ctx)
+        fun initDatabase(ctx: Context, name: String) {
+            database = buildDatabase(ctx, name)
         }
 
         fun getDatabase() : AppDatabase? {
@@ -25,8 +25,8 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         // https://medium.com/google-developers/7-pro-tips-for-room-fbadea4bfbd1#4785
-        private fun buildDatabase(context: Context): AppDatabase {
-            return Room.databaseBuilder(context, AppDatabase::class.java, "instabot_db")
+        private fun buildDatabase(context: Context, name: String): AppDatabase {
+            return Room.databaseBuilder(context, AppDatabase::class.java, name)
                 .addCallback(object : RoomDatabase.Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
