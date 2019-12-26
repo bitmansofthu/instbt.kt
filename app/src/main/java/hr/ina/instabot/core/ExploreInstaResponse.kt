@@ -29,7 +29,7 @@ class ExploreInstaResponse(response: Response) : HtmlInstaResponse(response) {
             val medias = ArrayList<InstaMedia>()
             if (edges != null) {
                 for (i in 0 until edges.length()) {
-                    val node = edges?.getJSONObject(i)!!.getJSONObject("node")
+                    val node = edges?.getJSONObject(i)!!.optJSONObject("node")
                     val media = InstaMedia(
                         node?.optString("id"),
                         node?.optString("shortcode"),

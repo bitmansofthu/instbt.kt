@@ -5,7 +5,7 @@ import java.util.*
 data class InstaMedia(
     val mediaId: String?,
     val shortCode: String?,
-    val likeCount: Int? = 0,
+    val likeCount: Int?,
     val takenAt: Date?,
     val ownerId: String?
 )

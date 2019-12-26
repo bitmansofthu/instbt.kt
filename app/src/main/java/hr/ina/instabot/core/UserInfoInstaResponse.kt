@@ -23,6 +23,12 @@ class UserInfoInstaResponse(response: Response) : HtmlInstaResponse(response) {
         Log.w(TAG, "Failed to evaulate follows_viewer", e)
         null
     }
+    val userFollows = try {
+        userRoot?.getBoolean("followed_by_viewer")
+    } catch (e : Exception) {
+        Log.w(TAG, "Failed to evaulate followed_by_viewer", e)
+        null
+    }
     val mediaCount = try {
         userRoot?.getJSONObject("edge_owner_to_timeline_media")?.getInt("count")
     } catch (e : Exception) {

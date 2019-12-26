@@ -4,7 +4,11 @@ interface InstaRequest {
 
     fun like(mediaid: String) : InstaResponse
 
+    fun unlike(mediaid: String) : InstaResponse
+
     fun follow(userid: String) : InstaResponse
+
+    fun unfollow(userid: String) : InstaResponse
 
     fun explore(hashtag: String) : ExploreInstaResponse
 

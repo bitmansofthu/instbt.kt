@@ -15,7 +15,17 @@ class WebInstaRequest(private val cookieManager : InstaCookieManager) : InstaReq
 
     override fun follow(userid: String) : InstaResponse {
         val resp = HttpClient.post("https://www.instagram.com/web/friendships/$userid/follow/", cookieManager).execute()
-        return InstaResponse(resp)
+        return JsonInstaResponse(resp)
+    }
+
+    override fun unlike(mediaid: String) : InstaResponse {
+        val resp = HttpClient.post("https://www.instagram.com/web/likes/$mediaid/unlike/", cookieManager).execute()
+        return JsonInstaResponse(resp)
+    }
+
+    override fun unfollow(userid: String) : InstaResponse {
+        val resp = HttpClient.post("https://www.instagram.com/web/friendships/$userid/unfollow/", cookieManager).execute()
+        return JsonInstaResponse(resp)
     }
 
     override fun explore(hashtag: String) : ExploreInstaResponse {

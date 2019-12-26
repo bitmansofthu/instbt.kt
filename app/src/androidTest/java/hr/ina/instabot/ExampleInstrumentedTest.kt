@@ -50,92 +50,131 @@ class ExampleInstrumentedTest {
         val req = WebInstaRequest(cookie)
         val resp = req.explore("eskuvo")
 
-        assertTrue(resp.statusCode == 200)
+        assertEquals(200, resp.statusCode)
 
         val len = resp.medias.size
         assertTrue(len > 0)
+
+        assertNotNull(resp.medias[0].mediaId)
+        assertNotNull(resp.medias[0].likeCount)
+        assertNotNull(resp.medias[0].ownerId)
+        assertNotNull(resp.medias[0].shortCode)
+        assertNotNull(resp.medias[0].takenAt)
     }
 
     @Test
-    fun testHashTagExploreAndLike() {
+    fun testLike() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         val hdrs = Settings.getHeaderStorage(appContext)
         val cookie = InstaCookieManager(hdrs)
 
         val loggedIn = cookie.isLoggedIn
 
+        val mediaId = "2207231572644826524"
+
         assertTrue(loggedIn)
 
         val req = WebInstaRequest(cookie)
-        val exploreResp = req.explore("eskuvo")
 
-        assertTrue(exploreResp.statusCode == 200)
-
-        val len = exploreResp.medias?.size
-        assertTrue(len > 0)
-
-        val media = exploreResp.medias[0]
-        assertNotNull("mediaId cant be null", media.mediaId)
-
-        val likeResp = req.like(media!!.mediaId!!)
-        assertTrue(likeResp.statusCode == 200)
+        val likeResp = req.like(mediaId)
+        assertEquals(200, likeResp.statusCode)
     }
 
     @Test
-    fun testHashTagExploreAndMediaInfo() {
+    fun testUnlike() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         val hdrs = Settings.getHeaderStorage(appContext)
         val cookie = InstaCookieManager(hdrs)
 
         val loggedIn = cookie.isLoggedIn
 
+        val mediaId = "2207231572644826524"
+
         assertTrue(loggedIn)
 
         val req = WebInstaRequest(cookie)
-        val exploreResp = req.explore("eskuvo")
 
-        assertTrue(exploreResp.statusCode == 200)
+        val likeResp = req.unlike(mediaId)
+        assertEquals(200, likeResp.statusCode)
+    }
 
-        val len = exploreResp.medias?.size
-        assertTrue(len > 0)
+    @Test
+    fun testMediaInfo() {
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val hdrs = Settings.getHeaderStorage(appContext)
+        val cookie = InstaCookieManager(hdrs)
 
-        val media = exploreResp.medias[0]
-        assertNotNull("mediaShortCode cant be null", media.shortCode)
+        val loggedIn = cookie.isLoggedIn
 
-        val mediaResp = req.getMediaInfo(media!!.shortCode!!)
-        assertTrue(mediaResp.statusCode == 200)
+        val shortCode = "B6hqWvAhY2c"
+
+        assertTrue(loggedIn)
+
+        val req = WebInstaRequest(cookie)
+
+        val mediaResp = req.getMediaInfo(shortCode)
+        assertEquals(200, mediaResp.statusCode)
         assertNotNull(mediaResp.userName)
     }
 
     @Test
-    fun testHashTagExploreAndUserInfo() {
+    fun testUserInfo() {
         val appContext = InstrumentationRegistry.getInstrumentation().targetContext
         val hdrs = Settings.getHeaderStorage(appContext)
         val cookie = InstaCookieManager(hdrs)
+
+        val userName = "kalman.eu"
 
         val loggedIn = cookie.isLoggedIn
 
         assertTrue(loggedIn)
 
         val req = WebInstaRequest(cookie)
-        val exploreResp = req.explore("eskuvo")
 
-        assertTrue(exploreResp.statusCode == 200)
-
-        val len = exploreResp.medias?.size
-        assertTrue(len > 0)
-
-        val media = exploreResp.medias[0]
-        assertNotNull("mediaShortCode cant be null", media.shortCode)
-
-        val mediaResp = req.getMediaInfo(media!!.shortCode!!)
-        assertTrue(mediaResp.statusCode == 200)
-        assertNotNull(mediaResp.userName)
-
-        val userResp = req.getUserInfo(mediaResp.userName!!)
-        assertTrue(userResp.statusCode == 200)
+        val userResp = req.getUserInfo(userName)
+        assertEquals(200, userResp.statusCode)
         assertNotNull(userResp.userRoot)
-        assertTrue(userResp.followsCount!! > 0)
+        assertNotNull(userResp.followsCount)
+        assertNotNull(userResp.followerCount)
+        assertNotNull(userResp.mediaCount)
+        assertNotNull(userResp.followsUser)
+        assertNotNull(userResp.userFollows)
+    }
+
+    @Test
+    fun testFollow() {
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val hdrs = Settings.getHeaderStorage(appContext)
+        val cookie = InstaCookieManager(hdrs)
+
+        val userId= "3001001071"
+
+        val loggedIn = cookie.isLoggedIn
+
+        assertTrue(loggedIn)
+
+        val req = WebInstaRequest(cookie)
+
+        val followResp = req.follow(userId)
+        assertEquals(200, followResp.statusCode)
+    }
+
+    @Test
+    fun testUnfollow() {
+        val appContext = InstrumentationRegistry.getInstrumentation().targetContext
+        val hdrs = Settings.getHeaderStorage(appContext)
+        val cookie = InstaCookieManager(hdrs)
+
+        val userId= "3001001071"
+
+        val loggedIn = cookie.isLoggedIn
+
+        assertTrue(loggedIn)
+
+        val req = WebInstaRequest(cookie)
+
+        val followResp = req.unfollow(userId)
+        assertEquals(200, followResp.statusCode)
     }
 
     @Test
