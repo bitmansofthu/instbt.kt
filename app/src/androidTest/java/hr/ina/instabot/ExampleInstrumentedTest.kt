@@ -139,6 +139,7 @@ class ExampleInstrumentedTest {
         assertNotNull(userResp.mediaCount)
         assertNotNull(userResp.followsUser)
         assertNotNull(userResp.userFollows)
+        assertNotNull(userResp.lastMediaTaken)
     }
 
     @Test

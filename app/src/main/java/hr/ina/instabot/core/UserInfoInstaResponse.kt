@@ -3,6 +3,7 @@ package hr.ina.instabot.core
 import android.util.Log
 import okhttp3.Response
 import java.lang.Exception
+import java.util.*
 
 class UserInfoInstaResponse(response: Response) : HtmlInstaResponse(response) {
 
@@ -45,6 +46,12 @@ class UserInfoInstaResponse(response: Response) : HtmlInstaResponse(response) {
         userRoot?.getJSONObject("edge_followed_by")?.getInt("count")
     } catch (e : Exception) {
         Log.w(TAG, "Failed to evaulate edge_followed_by", e)
+        null
+    }
+    val lastMediaTaken = try {
+        Date(userRoot?.getJSONObject("edge_owner_to_timeline_media")?.getJSONArray("edges")?.getJSONObject(0)?.getJSONObject("node")?.getLong("taken_at_timestamp")!!)
+    } catch (e : Exception) {
+        Log.w(TAG, "Failed to evaulate edge_owner_to_timeline_media", e)
         null
     }
 }
