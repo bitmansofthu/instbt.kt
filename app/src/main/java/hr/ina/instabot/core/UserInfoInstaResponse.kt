@@ -18,6 +18,12 @@ class UserInfoInstaResponse(response: Response) : HtmlInstaResponse(response) {
         null
     }
 
+    val userName = try {
+        userRoot?.getString("username")
+    } catch (e : Exception) {
+        Log.w(TAG, "Failed to evaulate userName", e)
+        null
+    }
     val followsUser = try {
         userRoot?.getBoolean("follows_viewer")
     } catch (e : Exception) {

@@ -134,6 +134,7 @@ class ExampleInstrumentedTest {
         val userResp = req.getUserInfo(userName)
         assertEquals(200, userResp.statusCode)
         assertNotNull(userResp.userRoot)
+        assertNotNull(userResp.userName)
         assertNotNull(userResp.followsCount)
         assertNotNull(userResp.followerCount)
         assertNotNull(userResp.mediaCount)

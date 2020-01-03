@@ -8,13 +8,9 @@ import java.io.OutputStream
 import kotlin.math.min
 import kotlin.random.Random
 
-class InstaBot(val request: InstaRequest, val database: AppDatabase) {
+class InstaBot(val request: InstaRequest) {
 
-    private lateinit var medias: List<InstaMedia>
-
-    var selector: (List<InstaMedia>) -> InstaMedia = {
-        it[Random.nextInt(0, min(it.size, 10))]
-    }
+    lateinit var medias: ArrayList<InstaMedia>
 
     init {
     }
@@ -27,11 +23,19 @@ class InstaBot(val request: InstaRequest, val database: AppDatabase) {
 
     }
 
+    fun getRandomMedia(max : Int = 10) : InstaMedia? {
+        if (medias != null) {
+            return medias.removeAt(Random.nextInt(0, min(medias.size, max)))
+        }
+
+        return null
+    }
+
     fun explore(hashtag: String) : InstaResponse {
         val resp = request.explore(hashtag)
 
         if (resp.isSuccessful && medias.size > 0) {
-            medias = resp.medias
+            medias = ArrayList(resp.medias)
         } else {
             throw InstaException("Explore has failed", InstaException.Type.REQUEST, resp)
         }
@@ -39,87 +43,80 @@ class InstaBot(val request: InstaRequest, val database: AppDatabase) {
         return resp
     }
 
-    fun like() : InstaResponse? {
-        val media = selector(medias)
-
+    fun like(media: InstaMedia) : InstaResponse {
         if (media.mediaId != null) {
-            if (database.instaMediaDao().findMediaById(media.mediaId) == null) {
-                val resp = request.like(media.mediaId!!)
+            val resp = request.like(media.mediaId!!)
 
-                if (resp.isSuccessful) {
-                    database.instaMediaDao().insertMedia(hr.ina.instabot.data.InstaMedia(mediaId = media.mediaId, likeResponseCode = resp.statusCode))
-                }
-
-                return resp
-            } else {
-
+            if (!resp.isSuccessful) {
+                throw InstaException("Like failed", InstaException.Type.REQUEST, resp)
             }
-        }
 
-        return null
+            return resp
+        } else {
+            throw InstaException("MediaId not available", InstaException.Type.MISSING_VALUE)
+        }
     }
 
-    fun follow() : InstaResponse? {
-        val media = selector(medias)
-
+    fun getUserFromMedia(media: InstaMedia) : UserInfoInstaResponse {
         if (media.ownerId != null && media.shortCode != null) {
+            val miresp = request.getMediaInfo(media.shortCode!!)
 
-            if (database.instaUserDao().findByUserId(media.ownerId) != null) {
-                throw InstaException("User already followed", InstaException.Type.ENTRY_EXISTS)
-            }
+            if (miresp.isSuccessful && miresp.userName != null) {
+                val uiresp = request.getUserInfo(miresp.userName)
 
-            val resp = request.getMediaInfo(media.shortCode!!)
-
-            if (resp.isSuccessful && resp.userName != null) {
-                val userName = resp.userName
-                val resp = request.getUserInfo(userName)
-
-                if (resp.followerCount == null) {
-                    throw InstaException("Follower Count not available", InstaException.Type.MISSING_VALUE)
-                } else if (resp.followsCount == null) {
-                    throw InstaException(
-                        "Follows Count not available",
-                        InstaException.Type.MISSING_VALUE
-                    )
-                } else if (resp.followsUser == null) {
-                    throw InstaException(
-                        "Follows User not available",
-                        InstaException.Type.MISSING_VALUE
-                    )
+                if (!uiresp.isSuccessful || uiresp.userRoot == null) {
+                    throw InstaException("getUserInfo has failed", InstaException.Type.REQUEST, uiresp)
                 }
 
-                if (resp.isSuccessful && checkUserInfoForFollow(resp.followerCount!!, resp.followsCount!!, resp.followsUser!!)) {
-                    val folresp = request.follow(media.ownerId)
-
-                    if (folresp.isSuccessful) {
-                        database.instaUserDao().insertUser(InstaUser(userId = media.ownerId, name = userName))
-                    }
-
-                    return folresp
-                }
-
+                return uiresp
+            } else {
+                throw InstaException("getMediaInfo has failed", InstaException.Type.REQUEST, miresp)
             }
+        } else {
+            throw InstaException("Media ownerId or shortCode is missing", InstaException.Type.MISSING_VALUE)
         }
-
-        return null
     }
 
-    fun unfollow() : InstaResponse? {
-        val user = database.instaUserDao().getRandomuser()
+    fun follow(userid: String, uiresp: UserInfoInstaResponse) : InstaResponse {
+        if (uiresp.followerCount == null) {
+            throw InstaException("Follower Count not available", InstaException.Type.MISSING_VALUE)
+        } else if (uiresp.followsCount == null) {
+            throw InstaException(
+                "Follows Count not available",
+                InstaException.Type.MISSING_VALUE
+            )
+        } else if (uiresp.followsUser == null) {
+            throw InstaException(
+                "Follows User not available",
+                InstaException.Type.MISSING_VALUE
+            )
+        }
 
+        if (checkUserInfoForFollow(uiresp.followerCount!!, uiresp.followsCount!!, uiresp.followsUser!!)) {
+            val folresp = request.follow(userid)
+
+            if (folresp.isSuccessful) {
+                return folresp
+            } else {
+                throw InstaException("Follow request failed", InstaException.Type.REQUEST, folresp)
+            }
+        } else {
+            throw InstaException("Won't follow user", InstaException.Type.FAKE_USER)
+        }
+    }
+
+    fun unfollow(user: InstaUser) : InstaResponse {
         val resp = request.getUserInfo(user.name)
 
         val followsUser = resp.followsUser ?: false
 
-        if (resp.isSuccessful && followsUser) {
+        if (resp.isSuccessful && !followsUser) {
             val resp = request.unfollow(user.userId!!)
 
-            database.instaUserDao().deleteUser(user)
-
             return resp
+        } else {
+            throw InstaException("Unfollow request has failed", InstaException.Type.REQUEST, resp)
         }
-
-        return null
     }
 
     private fun checkUserInfoForFollow(followerCount: Int, followsCount: Int, followsUser: Boolean) : Boolean {
@@ -129,13 +126,11 @@ class InstaBot(val request: InstaRequest, val database: AppDatabase) {
                     "This is probably Selebgram account",
                     InstaException.Type.FAKE_USER
                 )
-                return false
             } else if (followerCount == 0 || followsCount / followerCount > 2) {
                 throw InstaException(
                     "This is probably Fake account",
                     InstaException.Type.FAKE_USER
                 )
-                return false
             }
         }
 
