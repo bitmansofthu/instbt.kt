@@ -7,10 +7,11 @@ import android.view.ViewGroup
 import hr.ina.instabot.R
 import hr.ina.instabot.core.InstaBot
 import hr.ina.instabot.core.WebInstaRequest
+import hr.ina.instabot.core.model.InstaMedia
 import hr.ina.instabot.data.AppDatabase
 import hr.ina.instabot.network.InstaCookieManager
-import hr.ina.instabot.util.ACTION
-import hr.ina.instabot.util.InstaBotRx
+import hr.ina.instabot.core.InstaAction
+import hr.ina.instabot.core.InstaBotModel
 import hr.ina.instabot.util.Settings
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -25,17 +26,39 @@ class InstaBotFragment : BaseFragment() {
             val fr = InstaBotFragment()
             return fr
         }
+
+        const val MAX_MEDIA_FOR_RANDOM = 20
+        const val MIN_USER_FOR_UNFOLLOW = 10
     }
 
     val compositeDisposable = CompositeDisposable()
-    lateinit var instabot : InstaBotRx
+    lateinit var instabot : InstaBotModel
+
+    val hashtags = arrayOf("instahun", "mutimitcsinalsz", "budapest", "magyarig", "ikozosseg", "mik", "like4like", "magyarinsta", "instagood", "hungariangirl", "sayyes", "eskuvo", "wedding", "mutimiteszel", "ihungary")
+
+    lateinit var currentUserName: String
+    lateinit var currentMedia: InstaMedia
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         val hdrs = Settings.getHeaderStorage(context!!)
         val cookie = InstaCookieManager(hdrs)
-        instabot = InstaBotRx(arrayOf(ACTION.FOLLOW, ACTION.LIKE), InstaBot(WebInstaRequest(cookie)), AppDatabase.getDatabase()!!)
+        instabot = InstaBotModel(
+            hashtags,
+            arrayOf(
+                InstaAction.LIKE,
+                InstaAction.LIKE,
+                InstaAction.LIKE,
+                InstaAction.FOLLOW,
+                InstaAction.LIKE,
+                InstaAction.LIKE,
+                InstaAction.UNFOLLOW,
+                InstaAction.LIKE
+            ),
+            InstaBot(WebInstaRequest(cookie)),
+            AppDatabase.getDatabase()!!
+        )
     }
 
     override fun onCreateView(
@@ -53,15 +76,33 @@ class InstaBotFragment : BaseFragment() {
     override fun onStart() {
         super.onStart()
 
-        val ticker = Observable.interval(5, TimeUnit.MINUTES, Schedulers.io())
+        val ticker = Observable.interval(5, TimeUnit.MINUTES)
             .map {
-                instabot.getRandomMedia("")
-            }
-            .map {
+                var action = instabot.getNextAction()
+                val db = AppDatabase.getDatabase()!!
 
+                if (action == InstaAction.UNFOLLOW && db.instaUserDao().getNumberOfUsers() >= MIN_USER_FOR_UNFOLLOW) {
+                    action = InstaAction.LIKE
+                }
+                action
             }
-            .subscribeOn(AndroidSchedulers.mainThread())
-            .subscribe()
+            .flatMap {action ->
+                when (action) {
+                    InstaAction.LIKE -> instabot.obtainMedia(MAX_MEDIA_FOR_RANDOM).flatMap {
+                        instabot.likeMedia(it)
+                    }
+                    InstaAction.FOLLOW -> instabot.obtainMedia(MAX_MEDIA_FOR_RANDOM).flatMap {
+                        instabot.followUserByMedia(it)
+                    }
+                    InstaAction.UNFOLLOW -> instabot.unfollowRandomUser()
+                }.subscribeOn(Schedulers.io()).toObservable()
+            }
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+
+            }, {
+
+            })
         compositeDisposable.add(ticker)
     }
 

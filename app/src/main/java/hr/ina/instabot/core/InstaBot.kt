@@ -10,33 +10,13 @@ import kotlin.random.Random
 
 class InstaBot(val request: InstaRequest) {
 
-    lateinit var medias: ArrayList<InstaMedia>
-
     init {
     }
 
-    fun loadMedias(ins: InputStream) {
-
-    }
-
-    fun saveMedias(outs: OutputStream) {
-
-    }
-
-    fun getRandomMedia(max : Int = 10) : InstaMedia? {
-        if (medias != null) {
-            return medias.removeAt(Random.nextInt(0, min(medias.size, max)))
-        }
-
-        return null
-    }
-
-    fun explore(hashtag: String) : InstaResponse {
+    fun explore(hashtag: String) : ExploreInstaResponse {
         val resp = request.explore(hashtag)
 
-        if (resp.isSuccessful && medias.size > 0) {
-            medias = ArrayList(resp.medias)
-        } else {
+        if (!resp.isSuccessful || resp.medias.isEmpty()) {
             throw InstaException("Explore has failed", InstaException.Type.REQUEST, resp)
         }
 
@@ -45,7 +25,7 @@ class InstaBot(val request: InstaRequest) {
 
     fun like(media: InstaMedia) : InstaResponse {
         if (media.mediaId != null) {
-            val resp = request.like(media.mediaId!!)
+            val resp = request.like(media.mediaId)
 
             if (!resp.isSuccessful) {
                 throw InstaException("Like failed", InstaException.Type.REQUEST, resp)
@@ -59,7 +39,7 @@ class InstaBot(val request: InstaRequest) {
 
     fun getUserFromMedia(media: InstaMedia) : UserInfoInstaResponse {
         if (media.ownerId != null && media.shortCode != null) {
-            val miresp = request.getMediaInfo(media.shortCode!!)
+            val miresp = request.getMediaInfo(media.shortCode)
 
             if (miresp.isSuccessful && miresp.userName != null) {
                 val uiresp = request.getUserInfo(miresp.userName)
@@ -92,7 +72,7 @@ class InstaBot(val request: InstaRequest) {
             )
         }
 
-        if (checkUserInfoForFollow(uiresp.followerCount!!, uiresp.followsCount!!, uiresp.followsUser!!)) {
+        if (checkUserInfoForFollow(uiresp.followerCount, uiresp.followsCount, uiresp.followsUser)) {
             val folresp = request.follow(userid)
 
             if (folresp.isSuccessful) {
@@ -101,7 +81,7 @@ class InstaBot(val request: InstaRequest) {
                 throw InstaException("Follow request failed", InstaException.Type.REQUEST, folresp)
             }
         } else {
-            throw InstaException("Won't follow user", InstaException.Type.FAKE_USER)
+            throw InstaException("Won't follow user", InstaException.Type.FAKE_USER, uiresp)
         }
     }
 
@@ -111,9 +91,13 @@ class InstaBot(val request: InstaRequest) {
         val followsUser = resp.followsUser ?: false
 
         if (resp.isSuccessful && !followsUser) {
-            val resp = request.unfollow(user.userId!!)
+            try {
+                Thread.sleep(3000)
+            } catch (e : InterruptedException) {
 
-            return resp
+            }
+
+            return request.unfollow(user.userId)
         } else {
             throw InstaException("Unfollow request has failed", InstaException.Type.REQUEST, resp)
         }

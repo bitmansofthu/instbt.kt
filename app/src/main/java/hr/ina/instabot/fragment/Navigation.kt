@@ -24,7 +24,7 @@ class Navigation(private val activity: FragmentActivity) {
 class NavigationMethod(private val activity: FragmentActivity, private val fragment: Fragment) {
 
     fun show(addToBackstack: Boolean = false, backstackState: String?) {
-        val trans = activity?.supportFragmentManager.beginTransaction()
+        val trans = activity.supportFragmentManager.beginTransaction()
         trans.replace(R.id.container, fragment)
         if (addToBackstack)
             trans.addToBackStack(backstackState)

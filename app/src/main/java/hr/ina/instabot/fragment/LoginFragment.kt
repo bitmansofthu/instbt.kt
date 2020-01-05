@@ -48,12 +48,12 @@ class LoginFragment : BaseFragment() {
                 request: WebResourceRequest?
             ): WebResourceResponse? {
                 if (request?.url?.path?.contains("ajax/bz") == true &&
-                        request?.requestHeaders["X-IG-WWW-Claim"]?.equals("0") == false) {
+                        request.requestHeaders["X-IG-WWW-Claim"]?.equals("0") == false) {
                     val man = InstaCookieManager(Settings.getHeaderStorage(context!!))
 
-                    man.importHeaders(request?.requestHeaders)
+                    man.importHeaders(request.requestHeaders)
 
-                    val cookies = CookieManager.getInstance().getCookie(request?.url.toString())
+                    val cookies = CookieManager.getInstance().getCookie(request.url.toString())
                     if (cookies != null) {
                         man.importCookies(cookies)
                     }

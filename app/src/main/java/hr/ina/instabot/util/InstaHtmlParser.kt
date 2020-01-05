@@ -18,7 +18,7 @@ class InstaHtmlParser(val html: String) {
     }
 
     val graphql: JSONObject? = try {
-        JSONObject("{\"graphql\"" + html.split("{\"graphql\"")[1].split(");</script>")[0])?.getJSONObject("graphql")
+        JSONObject("{\"graphql\"" + html.split("{\"graphql\"")[1].split(");</script>")[0]).getJSONObject("graphql")
     } catch (e: Exception) {
         Log.d(TAG, "Failed to parse graphql", e)
         null
