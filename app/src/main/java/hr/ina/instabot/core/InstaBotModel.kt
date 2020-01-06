@@ -68,6 +68,7 @@ class InstaBotModel(hashtags: Array<String>,
             } else {
                 try {
                     val resp = instabot.explore(shuffledHashtags[hashtagCount++])
+                    medias = ArrayList(resp.medias)
                     if (hashtagCount == shuffledHashtags.size) {
                         hashtagCount = 0
                     }
@@ -101,7 +102,7 @@ class InstaBotModel(hashtags: Array<String>,
                     )
                 )
             } catch (e : Exception) {
-
+                it.onError(e)
             }
         }
     }

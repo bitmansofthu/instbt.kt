@@ -11,6 +11,10 @@ class Navigation(private val activity: FragmentActivity) {
         return NavigationMethod(activity, LoginFragment.newInstance())
     }
 
+    fun testBot() : NavigationMethod {
+        return NavigationMethod(activity, InstaBotFragment.newInstance())
+    }
+
     fun navigateUp() {
         activity.supportFragmentManager.popBackStack()
     }

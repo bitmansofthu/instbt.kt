@@ -28,8 +28,6 @@ class MainActivity : AppCompatActivity() {
         //    }
         //})
 
-        //Navigation(this).showLogin()
-
-        //supportFragmentManager.beginTransaction().replace(R.id.container, LoginFragment.newInstance()).commit()
+        Navigation(this).testBot().show(false, null)
     }
 }
