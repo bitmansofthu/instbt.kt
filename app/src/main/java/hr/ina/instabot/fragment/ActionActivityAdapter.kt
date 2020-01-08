@@ -1,6 +1,7 @@
 package hr.ina.instabot.fragment
 
 import android.content.Context
+import android.text.format.DateFormat
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -9,6 +10,9 @@ import hr.ina.instabot.R
 import hr.ina.instabot.core.InstaAction
 import hr.ina.instabot.core.InstaBotActionResult
 import kotlinx.android.synthetic.main.activity_item.view.*
+import java.text.SimpleDateFormat
+import java.util.*
+import kotlin.collections.ArrayList
 
 class ActionActivityAdapter(val context : Context) : RecyclerView.Adapter<ViewHolder>() {
 
@@ -26,15 +30,21 @@ class ActionActivityAdapter(val context : Context) : RecyclerView.Adapter<ViewHo
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val entry = entries[position]
 
+        val date = Date()
+        val dateformat = DateFormat.format("yyyy-MM-dd HH:mm:ss", date)
+
         when (entry.action) {
             InstaAction.LIKE -> {
-                holder.statusText.text = "LIKED media " + entry.media?.shortCode
+                holder.statusText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_like, 0, 0, 0)
+                holder.statusText.text = "$dateformat\n${entry.media?.shortCode}"
             }
             InstaAction.FOLLOW -> {
-                holder.statusText.text = "FOLLOWED user " + entry.userName
+                holder.statusText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_follow, 0, 0, 0)
+                holder.statusText.text = "$dateformat\n${entry.userName}"
             }
             InstaAction.UNFOLLOW -> {
-                holder.statusText.text = "UNFOLLOWED user " + entry.userName
+                holder.statusText.setCompoundDrawablesWithIntrinsicBounds(R.drawable.ic_unfollow, 0, 0, 0)
+                holder.statusText.text = "$dateformat\n${entry.userName}"
             }
         }
     }

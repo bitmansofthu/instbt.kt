@@ -1,5 +1,6 @@
 package hr.ina.instabot.core
 
+import android.util.Log
 import hr.ina.instabot.core.model.InstaMedia
 import hr.ina.instabot.data.AppDatabase
 import hr.ina.instabot.data.InstaUser
@@ -16,7 +17,8 @@ enum class InstaAction {
 data class InstaBotActionResult (
     val action : InstaAction,
     val userName : String?,
-    val media : InstaMedia?
+    val media : InstaMedia?,
+    val failureMessage: String?
 )
 
 class InstaBotModel(hashtags: Array<String>,
@@ -26,6 +28,8 @@ class InstaBotModel(hashtags: Array<String>,
 
     companion object {
         const val MIN_USER_FOR_UNFOLLOW = 10
+
+        const val TAG = "InstaBotModel"
     }
 
     private var actionsForHashtag = 0
@@ -67,6 +71,8 @@ class InstaBotModel(hashtags: Array<String>,
                 it.onSuccess(media)
             } else {
                 try {
+                    Log.d(TAG, "Getting medias for hashtag: " + shuffledHashtags[hashtagCount])
+
                     val resp = instabot.explore(shuffledHashtags[hashtagCount++])
                     medias = ArrayList(resp.medias)
                     if (hashtagCount == shuffledHashtags.size) {
@@ -84,25 +90,37 @@ class InstaBotModel(hashtags: Array<String>,
 
     fun likeMedia(media : InstaMedia) : Single<InstaBotActionResult> {
         return Single.create {
-            try {
-                val resp = instabot.like(media)
+            if (media.mediaId != null && database.instaMediaDao().findMediaById(media.mediaId) == null) {
+                try {
+                    Log.d(TAG, "Trying to like media " + media.shortCode)
 
-                database.instaMediaDao().insertMedia(
-                    hr.ina.instabot.data.InstaMedia(
-                        mediaId = media.mediaId!!,
-                        shortCode = media.shortCode!!
-                    )
-                )
+                    val resp = instabot.like(media)
 
-                it.onSuccess(
-                    InstaBotActionResult(
-                        InstaAction.LIKE,
-                        null,
-                        media
+                    database.instaMediaDao().insertMedia(
+                        hr.ina.instabot.data.InstaMedia(
+                            mediaId = media.mediaId!!,
+                            shortCode = media.shortCode!!
+                        )
                     )
-                )
-            } catch (e : Exception) {
-                it.onError(e)
+
+                    it.onSuccess(
+                        InstaBotActionResult(
+                            InstaAction.LIKE,
+                            null,
+                            media,
+                            null
+                        )
+                    )
+                } catch (e: Exception) {
+                    it.onError(e)
+                }
+            } else {
+                it.onSuccess(InstaBotActionResult(
+                    InstaAction.LIKE,
+                    null,
+                    media,
+                    "User already liked"
+                ))
             }
         }
     }
@@ -125,16 +143,37 @@ class InstaBotModel(hashtags: Array<String>,
                     actionsForHashtag++
                     it.onSuccess(
                         InstaBotActionResult(
-                            InstaAction.LIKE,
+                            InstaAction.FOLLOW,
                             userresp.userName,
-                            media
+                            media,
+                            null
                         )
                     )
                 } catch (e : Exception) {
-                    it.onError(e)
+                    if (e is InstaException) {
+                        if (e.type == InstaException.Type.FAKE_USER) {
+                            it.onSuccess(
+                                InstaBotActionResult(
+                                    InstaAction.FOLLOW,
+                                    null,
+                                    null,
+                                    "Fake user"
+                                )
+                            )
+                        } else {
+                            it.onError(e)
+                        }
+                    } else {
+                        it.onError(e)
+                    }
                 }
             } else {
-                it.onError(IllegalStateException("User already followed or ownerId not available"))
+                it.onSuccess(InstaBotActionResult(
+                    InstaAction.UNFOLLOW,
+                    null,
+                    null,
+                    "User already followed or ownerId not available"
+                ))
             }
         }
     }
@@ -146,7 +185,12 @@ class InstaBotModel(hashtags: Array<String>,
             unfollowUser(user)
         } else {
             Single.create {
-                it.onError(IllegalStateException("User database is empty"))
+                it.onSuccess(InstaBotActionResult(
+                    InstaAction.UNFOLLOW,
+                    user?.name,
+                    null,
+                    "User database is empty"
+                ))
             }
         }
     }
@@ -162,16 +206,22 @@ class InstaBotModel(hashtags: Array<String>,
                     actionsForHashtag++
                     it.onSuccess(
                         InstaBotActionResult(
-                            InstaAction.LIKE,
+                            InstaAction.UNFOLLOW,
                             user.name,
+                            null,
                             null
                         )
                     )
                 } catch (e : Exception) {
-
+                    it.onError(e)
                 }
             } else {
-                it.onError(IllegalStateException("Not enough user for unfollow"))
+                it.onSuccess(InstaBotActionResult(
+                    InstaAction.UNFOLLOW,
+                    user.name,
+                    null,
+                    "Not enough user to unfollow"
+                ))
             }
         }
     }
@@ -191,7 +241,8 @@ class InstaBotModel(hashtags: Array<String>,
                             InstaBotActionResult(
                                 InstaAction.LIKE,
                                 null,
-                                media
+                                media,
+                                null
                             )
                         )
                     }
@@ -213,7 +264,8 @@ class InstaBotModel(hashtags: Array<String>,
                                 InstaBotActionResult(
                                     InstaAction.LIKE,
                                     userresp.userName,
-                                    media
+                                    media,
+                                    null
                                 )
                             )
                         } else {
@@ -233,6 +285,7 @@ class InstaBotModel(hashtags: Array<String>,
                                 InstaBotActionResult(
                                     InstaAction.LIKE,
                                     user.name,
+                                    null,
                                     null
                                 )
                             )

@@ -7,4 +7,12 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <TextView
+        android:id="@+id/error_status"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+        android:background="@android:color/holo_orange_dark"
+        android:visibility="gone"/>
+
 </RelativeLayout>

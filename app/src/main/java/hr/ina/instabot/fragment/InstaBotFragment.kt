@@ -5,6 +5,8 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.view.WindowManager
+import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import hr.ina.instabot.R
 import hr.ina.instabot.core.InstaBot
@@ -21,6 +23,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_instabot.view.*
+import java.lang.IllegalStateException
 import java.util.concurrent.TimeUnit
 
 class InstaBotFragment : BaseFragment() {
@@ -77,12 +80,19 @@ class InstaBotFragment : BaseFragment() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        view.activity_list.layoutManager = LinearLayoutManager(context)
+        val layoutManager = LinearLayoutManager(context)
+        layoutManager.orientation = LinearLayoutManager.VERTICAL
+
+        view.activity_list.layoutManager = layoutManager
         view.activity_list.adapter = actionActivityAdapter
+        view.activity_list.addItemDecoration(DividerItemDecoration(context,
+            layoutManager.orientation))
     }
 
     override fun onStart() {
         super.onStart()
+
+        activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
         val ticker = Observable.interval(0, 2, TimeUnit.MINUTES)
             .subscribeOn(Schedulers.io())
@@ -91,7 +101,7 @@ class InstaBotFragment : BaseFragment() {
                     var action = instabot.getNextAction()
                     val db = AppDatabase.getDatabase()!!
 
-                    if (action == InstaAction.UNFOLLOW && db.instaUserDao().getNumberOfUsers() >= MIN_USER_FOR_UNFOLLOW) {
+                    if (action == InstaAction.UNFOLLOW && db.instaUserDao().getNumberOfUsers() < MIN_USER_FOR_UNFOLLOW) {
                         it.onSuccess(InstaAction.LIKE)
                     } else {
                         it.onSuccess(action)
@@ -113,8 +123,12 @@ class InstaBotFragment : BaseFragment() {
             .subscribe({
                 actionActivityAdapter.add(it)
             }, {
-                Log.e(TAG, "", it)
-                compositeDisposable.dispose()
+                Log.e(TAG, "Fatal error", it)
+
+                view?.error_status?.text = it.message
+                view?.error_status?.visibility = View.VISIBLE
+
+                //compositeDisposable.dispose()
             })
         compositeDisposable.add(ticker)
     }
@@ -123,6 +137,8 @@ class InstaBotFragment : BaseFragment() {
         super.onStop()
 
         compositeDisposable.dispose()
+
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
 
 }
