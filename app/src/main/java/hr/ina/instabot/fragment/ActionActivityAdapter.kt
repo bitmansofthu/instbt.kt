@@ -47,6 +47,13 @@ class ActionActivityAdapter(val context : Context) : RecyclerView.Adapter<ViewHo
                 holder.statusText.text = "$dateformat\n${entry.userName}"
             }
         }
+
+        if (entry.failureMessage != null) {
+            holder.failureText.text = entry.failureMessage
+            holder.failureText.visibility = View.VISIBLE
+        } else {
+            holder.failureText.visibility = View.GONE
+        }
     }
 
     override fun getItemCount(): Int {
@@ -55,5 +62,6 @@ class ActionActivityAdapter(val context : Context) : RecyclerView.Adapter<ViewHo
 }
 
 class ViewHolder (view: View) : RecyclerView.ViewHolder(view) {
-    val statusText= view.statusText
+    val statusText = view.statusText!!
+    val failureText = view.failureText!!
 }
