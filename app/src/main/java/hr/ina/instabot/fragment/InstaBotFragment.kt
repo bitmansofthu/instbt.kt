@@ -123,6 +123,7 @@ class InstaBotFragment : BaseFragment() {
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 actionActivityAdapter.add(it)
+                view?.current_hashtag?.text = "#${instabot.currentHashtag}"
             }, {
                 Log.e(TAG, "Fatal error", it)
 

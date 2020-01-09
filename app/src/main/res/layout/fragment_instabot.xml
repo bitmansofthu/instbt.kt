@@ -15,4 +15,14 @@
         android:background="@android:color/holo_orange_dark"
         android:visibility="gone"/>
 
+    <TextView
+        android:id="@+id/current_hashtag"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="3dp"
+        android:background="@android:color/holo_green_dark"
+        android:textColor="@android:color/white"
+        android:textAlignment="center"
+        android:layout_alignParentBottom="true" />
+
 </RelativeLayout>
