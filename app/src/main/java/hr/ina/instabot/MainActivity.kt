@@ -28,6 +28,12 @@ class MainActivity : AppCompatActivity() {
         //    }
         //})
 
-        Navigation(this).testBot().show(false, null)
+        val hdrs = Settings.getHeaderStorage(this)
+        val cookie = InstaCookieManager(hdrs)
+
+        if (cookie.isLoggedIn)
+            Navigation(this).testBot().show(false, null)
+        else
+            Navigation(this).login().show(false, null)
     }
 }

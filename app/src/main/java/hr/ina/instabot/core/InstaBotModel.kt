@@ -42,7 +42,7 @@ class InstaBotModel(hashtags: Array<String>,
 
     private lateinit var medias: ArrayList<InstaMedia>
 
-    val currentHashtag get() = shuffledHashtags[hashtagCount]
+    val currentHashtag get() = shuffledHashtags[if (hashtagCount - 1 < 0) 0 else hashtagCount - 1]
 
     init {
     }
@@ -163,7 +163,7 @@ class InstaBotModel(hashtags: Array<String>,
                             it.onSuccess(
                                 InstaBotActionResult(
                                     InstaAction.FOLLOW,
-                                    null,
+                                    userName,
                                     null,
                                      e.message
                                 )

@@ -40,8 +40,10 @@ class LoginFragment : BaseFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        webView.settings.javaScriptEnabled = true
-        webView.webViewClient = object: WebViewClient() {
+        activity?.title = "Login"
+
+        loginWebView.settings.javaScriptEnabled = true
+        loginWebView.webViewClient = object: WebViewClient() {
 
             override fun shouldInterceptRequest(
                 view: WebView?,
@@ -49,13 +51,21 @@ class LoginFragment : BaseFragment() {
             ): WebResourceResponse? {
                 if (request?.url?.path?.contains("ajax/bz") == true &&
                         request.requestHeaders["X-IG-WWW-Claim"]?.equals("0") == false) {
-                    val man = InstaCookieManager(Settings.getHeaderStorage(context!!))
+                    if (context != null) {
+                        val man = InstaCookieManager(Settings.getHeaderStorage(context!!))
 
-                    man.importHeaders(request.requestHeaders)
+                        man.importHeaders(request.requestHeaders)
 
-                    val cookies = CookieManager.getInstance().getCookie(request.url.toString())
-                    if (cookies != null) {
-                        man.importCookies(cookies)
+                        val cookies = CookieManager.getInstance().getCookie(request.url.toString())
+                        if (cookies != null) {
+                            man.importCookies(cookies)
+
+                            activity?.runOnUiThread {
+                                navigation.testBot().show(false, null)
+                            }
+                        } else {
+                            // TODO failed to obtain cookies
+                        }
                     }
                 }
 
@@ -83,6 +93,6 @@ class LoginFragment : BaseFragment() {
     override fun onStart() {
         super.onStart()
 
-        webView.loadUrl("https://instagram.com/accounts/login")
+        loginWebView.loadUrl("https://instagram.com/accounts/login")
     }
 }

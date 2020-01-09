@@ -1,3 +1,5 @@
 <resources>
     <string name="app_name">InstaBot</string>
+    <string name="action_logout">Logout</string>
+    <string name="app_logging_out">Logging out from app</string>
 </resources>

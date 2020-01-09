@@ -11,6 +11,14 @@ class Navigation(private val activity: FragmentActivity) {
         return NavigationMethod(activity, LoginFragment.newInstance())
     }
 
+    fun logout() : NavigationMethod {
+        return NavigationMethod(activity, LogoutFragment.newInstance())
+    }
+
+    fun openUrl(url: String) : NavigationMethod {
+        return NavigationMethod(activity, InstaWebFragment.newInstance(url))
+    }
+
     fun testBot() : NavigationMethod {
         return NavigationMethod(activity, InstaBotFragment.newInstance())
     }

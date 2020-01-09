@@ -2,10 +2,7 @@ package hr.ina.instabot.fragment
 
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
-import android.view.WindowManager
+import android.view.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import hr.ina.instabot.R
@@ -36,7 +33,7 @@ class InstaBotFragment : BaseFragment() {
 
         const val MAX_MEDIA_FOR_HASHTAG = 10
         const val MIN_USER_FOR_UNFOLLOW = 10
-        const val DEFAULT_ACTION_INTERVAL_MINUTES : Long = 3
+        const val DEFAULT_ACTION_INTERVAL_MINUTES : Long = 2
 
         const val TAG = "InstabotFragment"
     }
@@ -50,6 +47,8 @@ class InstaBotFragment : BaseFragment() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        setHasOptionsMenu(true)
 
         actionActivityAdapter = ActionActivityAdapter(context!!)
 
@@ -143,6 +142,22 @@ class InstaBotFragment : BaseFragment() {
         view?.error_status?.visibility = View.GONE
 
         activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.fragment_testbot, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.action_logout -> {
+                navigation.logout().show(true,"logout")
+
+                return true
+            }
+        }
+
+        return false
     }
 
 }
