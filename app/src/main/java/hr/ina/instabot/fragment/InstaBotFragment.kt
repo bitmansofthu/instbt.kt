@@ -87,6 +87,8 @@ class InstaBotFragment : BaseFragment() {
         view.activity_list.adapter = actionActivityAdapter
         view.activity_list.addItemDecoration(DividerItemDecoration(context,
             layoutManager.orientation))
+
+        activity?.title = "TestBot"
     }
 
     override fun onStart() {
