@@ -165,7 +165,7 @@ class InstaBotModel(hashtags: Array<String>,
                                     InstaAction.FOLLOW,
                                     null,
                                     null,
-                                    "Fake user"
+                                     e.message
                                 )
                             )
                         } else {

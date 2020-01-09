@@ -36,7 +36,7 @@ class InstaBotFragment : BaseFragment() {
 
         const val MAX_MEDIA_FOR_HASHTAG = 10
         const val MIN_USER_FOR_UNFOLLOW = 10
-        const val DEFAULT_ACTION_INTERVAL_MINUTES : Long = 4
+        const val DEFAULT_ACTION_INTERVAL_MINUTES : Long = 3
 
         const val TAG = "InstabotFragment"
     }
