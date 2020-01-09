@@ -34,8 +34,9 @@ class InstaBotFragment : BaseFragment() {
             return fr
         }
 
-        const val MAX_MEDIA_FOR_RANDOM = 20
+        const val MAX_MEDIA_FOR_HASHTAG = 10
         const val MIN_USER_FOR_UNFOLLOW = 10
+        const val DEFAULT_ACTION_INTERVAL_MINUTES : Long = 4
 
         const val TAG = "InstabotFragment"
     }
@@ -62,7 +63,7 @@ class InstaBotFragment : BaseFragment() {
                 InstaAction.LIKE,
                 InstaAction.FOLLOW,
                 InstaAction.LIKE,
-                InstaAction.LIKE,
+                InstaAction.FOLLOW,
                 InstaAction.UNFOLLOW,
                 InstaAction.LIKE
             ),
@@ -94,7 +95,7 @@ class InstaBotFragment : BaseFragment() {
 
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
-        val ticker = Observable.interval(0, 2, TimeUnit.MINUTES)
+        val ticker = Observable.interval(0, DEFAULT_ACTION_INTERVAL_MINUTES, TimeUnit.MINUTES)
             .subscribeOn(Schedulers.io())
             .flatMap {
                 Single.create<InstaAction> {
@@ -110,10 +111,10 @@ class InstaBotFragment : BaseFragment() {
             }
             .flatMap {action ->
                 when (action) {
-                    InstaAction.LIKE -> instabot.obtainMedia(MAX_MEDIA_FOR_RANDOM).flatMap {
+                    InstaAction.LIKE -> instabot.obtainMedia(MAX_MEDIA_FOR_HASHTAG).flatMap {
                         instabot.likeMedia(it)
                     }
-                    InstaAction.FOLLOW -> instabot.obtainMedia(MAX_MEDIA_FOR_RANDOM).flatMap {
+                    InstaAction.FOLLOW -> instabot.obtainMedia(MAX_MEDIA_FOR_HASHTAG).flatMap {
                         instabot.followUserByMedia(it)
                     }
                     InstaAction.UNFOLLOW -> instabot.unfollowRandomUser()
@@ -137,6 +138,8 @@ class InstaBotFragment : BaseFragment() {
         super.onStop()
 
         compositeDisposable.dispose()
+
+        view?.error_status?.visibility = View.GONE
 
         activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }

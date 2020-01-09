@@ -31,7 +31,7 @@ class ActionActivityAdapter(val context : Context) : RecyclerView.Adapter<ViewHo
         val entry = entries[position]
 
         val date = Date()
-        val dateformat = DateFormat.format("yyyy-MM-dd HH:mm:ss", date)
+        val dateformat = DateFormat.format("yyyy-MM-dd HH:mm:ss", entry.timestamp)
 
         when (entry.action) {
             InstaAction.LIKE -> {

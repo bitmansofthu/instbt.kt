@@ -7,6 +7,8 @@ import hr.ina.instabot.data.InstaUser
 import io.reactivex.Single
 import java.lang.Exception
 import java.lang.IllegalStateException
+import java.util.*
+import kotlin.collections.ArrayList
 import kotlin.math.min
 import kotlin.random.Random
 
@@ -18,7 +20,8 @@ data class InstaBotActionResult (
     val action : InstaAction,
     val userName : String?,
     val media : InstaMedia?,
-    val failureMessage: String?
+    val failureMessage: String?,
+    val timestamp: Date = Date()
 )
 
 class InstaBotModel(hashtags: Array<String>,
@@ -44,14 +47,24 @@ class InstaBotModel(hashtags: Array<String>,
     init {
     }
 
-    private fun getRandomMedia(max : Int = 10) : InstaMedia {
-        return medias.removeAt(Random.nextInt(0, min(medias.size, max)))
+    private fun getRandomMedia() : InstaMedia? {
+        try {
+            if (medias.size > 0) {
+                return medias.removeAt(Random.nextInt(0, medias.size))
+            }
+        } catch (e : Exception) {
+            Log.d(TAG, "Error with getRandomMedia", e)
+        }
+
+        return null
     }
 
     fun getNextAction() : InstaAction {
         if (actionsForHashtag == shuffledActions.size) {
             actionsForHashtag = 0
             shuffledActions = patternForHashtag.toList().shuffled()
+
+            Log.d(TAG, "Resetting actions order")
         }
 
         return shuffledActions[actionsForHashtag++]
@@ -59,27 +72,21 @@ class InstaBotModel(hashtags: Array<String>,
 
     fun obtainMedia(max : Int = 10) : Single<InstaMedia> {
         return Single.create {
-            var media : InstaMedia? = null
+            var media = getRandomMedia()
 
-            try {
-                media = getRandomMedia(max)
-            } catch (e : Exception) {
-                // not initialized
-            }
-
-            if (media != null && actionsForHashtag < patternForHashtag.size) {
+            if (media != null) {
                 it.onSuccess(media)
             } else {
                 try {
                     Log.d(TAG, "Getting medias for hashtag: " + shuffledHashtags[hashtagCount])
 
                     val resp = instabot.explore(shuffledHashtags[hashtagCount++])
-                    medias = ArrayList(resp.medias)
+                    medias = ArrayList(resp.medias.subList(0, min(max, resp.medias.size)))
                     if (hashtagCount == shuffledHashtags.size) {
                         hashtagCount = 0
                     }
 
-                    it.onSuccess(getRandomMedia(max))
+                    it.onSuccess(getRandomMedia()!!)
                 } catch (e : Exception) {
                     it.onError(e)
                 }
@@ -127,20 +134,21 @@ class InstaBotModel(hashtags: Array<String>,
 
     fun followUserByMedia(media: InstaMedia) : Single<InstaBotActionResult> {
         return Single.create {
+            var userName = "N/A"
             if (media.ownerId != null && database.instaUserDao().findByUserId(media.ownerId) == null) {
                 try {
                     val userresp = instabot.getUserFromMedia(media)
+                    userName = userresp.userName!!
 
                     val followresp = instabot.follow(media.ownerId, userresp)
 
                     database.instaUserDao().insertUser(
                         InstaUser(
                             userId = media.ownerId,
-                            name = userresp.userName!!
+                            name = userName
                         )
                     )
 
-                    actionsForHashtag++
                     it.onSuccess(
                         InstaBotActionResult(
                             InstaAction.FOLLOW,
@@ -170,7 +178,7 @@ class InstaBotModel(hashtags: Array<String>,
             } else {
                 it.onSuccess(InstaBotActionResult(
                     InstaAction.UNFOLLOW,
-                    null,
+                    userName,
                     null,
                     "User already followed or ownerId not available"
                 ))
@@ -203,7 +211,6 @@ class InstaBotModel(hashtags: Array<String>,
 
                     database.instaUserDao().deleteUser(user)
 
-                    actionsForHashtag++
                     it.onSuccess(
                         InstaBotActionResult(
                             InstaAction.UNFOLLOW,
