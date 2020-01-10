@@ -38,7 +38,7 @@ class InstaBotFragment : BaseFragment() {
         const val TAG = "InstabotFragment"
     }
 
-    private val compositeDisposable = CompositeDisposable()
+    private lateinit var compositeDisposable : CompositeDisposable
     lateinit var instabot : InstaBotModel
 
     lateinit var actionActivityAdapter: ActionActivityAdapter
@@ -93,6 +93,8 @@ class InstaBotFragment : BaseFragment() {
 
     override fun onStart() {
         super.onStart()
+
+        compositeDisposable = CompositeDisposable()
 
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 

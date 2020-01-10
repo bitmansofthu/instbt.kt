@@ -3,9 +3,38 @@ package hr.ina.instabot.network
 import android.content.SharedPreferences
 import android.util.Log
 
+class CookieMap(cookiesString: String) {
+    private val map = HashMap<String, String>()
+
+    init {
+        mapify(cookiesString)
+    }
+
+    fun value(key: String) : String? {
+        return map[key]
+    }
+
+    fun mapify(cookiesString : String) {
+        val cookies = cookiesString.split(";")
+
+        for (cookie in cookies) {
+            val key = cookie.split(":")[0].trim()
+            val value = cookie.split(":")[1].trim()
+
+            map[key] = value
+        }
+    }
+
+    fun stringify() : String? {
+        return null
+    }
+}
+
 class InstaCookieManager(private val prefs: SharedPreferences) {
 
-    private val TAG = InstaCookieManager::class.java.simpleName
+    companion object {
+        const val TAG = "InstaCookieManager"
+    }
 
     val headers = HashMap<String, String>()
     val isLoggedIn: Boolean
