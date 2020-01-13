@@ -105,7 +105,7 @@ class InstaBotModel(hashtags: Array<String>,
 
                     database.instaMediaDao().insertMedia(
                         hr.ina.instabot.data.InstaMedia(
-                            mediaId = media.mediaId!!,
+                            mediaId = media.mediaId,
                             shortCode = media.shortCode!!
                         )
                     )

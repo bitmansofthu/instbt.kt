@@ -1,5 +1,6 @@
 package hr.ina.instabot.network
 
+import android.content.Context
 import okhttp3.*
 import okhttp3.logging.HttpLoggingInterceptor
 import okhttp3.RequestBody.Companion.toRequestBody
@@ -7,8 +8,9 @@ import okhttp3.RequestBody.Companion.toRequestBody
 object HttpClient {
     private lateinit var client : OkHttpClient
 
-    fun initClient() {
+    fun initClient(context : Context, cookieManager: InstaCookieManager) {
         val logging = HttpLoggingInterceptor()
+        val insta = InstaInterceptor(context, cookieManager)
         logging.level = HttpLoggingInterceptor.Level.BODY
         this.client = OkHttpClient.Builder()
             .addInterceptor(logging)

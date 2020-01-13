@@ -22,6 +22,7 @@ import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.fragment_instabot.view.*
 import java.lang.IllegalStateException
 import java.util.concurrent.TimeUnit
+import kotlin.random.Random
 
 class InstaBotFragment : BaseFragment() {
 
@@ -34,6 +35,8 @@ class InstaBotFragment : BaseFragment() {
         const val MAX_MEDIA_FOR_HASHTAG = 10
         const val MIN_USER_FOR_UNFOLLOW = 10
         const val DEFAULT_ACTION_INTERVAL_MINUTES : Long = 2
+        const val DEFAULT_ACTION_DELAY_MIN_SECONDS : Long = 20
+        const val DEFAULT_ACTION_DELAY_MAX_SECONDS : Long = 180
 
         const val TAG = "InstabotFragment"
     }
@@ -112,6 +115,7 @@ class InstaBotFragment : BaseFragment() {
                     }
                 }.toObservable()
             }
+            .delay((DEFAULT_ACTION_DELAY_MIN_SECONDS..DEFAULT_ACTION_DELAY_MAX_SECONDS).random(), TimeUnit.SECONDS)
             .flatMap {action ->
                 when (action) {
                     InstaAction.LIKE -> instabot.obtainMedia(MAX_MEDIA_FOR_HASHTAG).flatMap {

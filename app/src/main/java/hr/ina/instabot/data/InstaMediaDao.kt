@@ -9,7 +9,7 @@ interface InstaMediaDao {
     fun getAll(): List<InstaMedia>
 
     @Query("SELECT * FROM instamedias WHERE media_id LIKE :mediaId LIMIT 1")
-    fun findMediaById(mediaId: String): InstaMedia
+    fun findMediaById(mediaId: String): InstaMedia?
 
     @Insert(onConflict = OnConflictStrategy.ABORT)
     fun insertMedia(media: InstaMedia): Long

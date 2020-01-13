@@ -30,7 +30,6 @@ class ActionActivityAdapter(val context : Context) : RecyclerView.Adapter<ViewHo
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         val entry = entries[position]
 
-        val date = Date()
         val dateformat = DateFormat.format("yyyy-MM-dd HH:mm:ss", entry.timestamp)
 
         when (entry.action) {
