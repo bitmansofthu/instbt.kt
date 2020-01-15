@@ -13,25 +13,26 @@ object HttpClient {
         val insta = InstaInterceptor(context, cookieManager)
         logging.level = HttpLoggingInterceptor.Level.BODY
         this.client = OkHttpClient.Builder()
+            .addInterceptor(insta)
             .addInterceptor(logging)
             .build()
     }
 
-    fun get(url: String, manager: InstaCookieManager) : Call {
-        return client.newCall(buildRequest(url, manager).get().build())
+    fun get(url: String) : Call {
+        return client.newCall(buildRequest(url).get().build())
     }
 
-    fun post(url: String, manager: InstaCookieManager, body: String? = null) : Call {
-        return client.newCall(buildRequest(url, manager).post((body ?: "").toRequestBody()).build())
+    fun post(url: String, body: String? = null) : Call {
+        return client.newCall(buildRequest(url).post((body ?: "").toRequestBody()).build())
     }
 
-    private fun buildRequest(url: String, manager: InstaCookieManager) : Request.Builder {
+    private fun buildRequest(url: String) : Request.Builder {
         val builder = Request.Builder()
             .url(url)
 
-        for ((k, v) in manager.headers) {
+        /*for ((k, v) in manager.headers) {
             builder.header(k, v)
-        }
+        }*/
 
         return builder
     }

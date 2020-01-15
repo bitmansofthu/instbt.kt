@@ -21,8 +21,7 @@ class InstaCookieManager(private val prefs: SharedPreferences) {
     }
 
     fun importCookies(cookies: String) {
-        prefs.edit().putString("Cookie", cookies).commit()
-        headers["Cookie"] = cookies
+        updateHeader("Cookie", cookies)
 
         Log.d(TAG, "Cookie $cookies")
     }
@@ -40,16 +39,20 @@ class InstaCookieManager(private val prefs: SharedPreferences) {
 
     fun updateHeader(key: String, value: String) {
         headers[key] = value
-        prefs.edit().putString(key, value)
+        prefs.edit().putString(key, value).commit()
     }
 
-    fun updateCookie(key: String, value: String) {
+    fun cookies() : CookieMap? {
         val cookies = headers["Cookie"]
         if (cookies != null) {
-            val map = CookieMap(cookies)
-            map.set(key, value)
-            headers["Cookie"] = map.stringify()
+            return CookieMap(cookies)
         }
+
+        return null
+    }
+
+    fun updateCookies(map : CookieMap) {
+        updateHeader("Cookie", map.stringify())
     }
 
 }

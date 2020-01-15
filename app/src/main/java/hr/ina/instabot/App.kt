@@ -8,11 +8,15 @@ import hr.ina.instabot.util.Settings
 
 class App : Application() {
 
+    lateinit var cookieManager: InstaCookieManager
+
     override fun onCreate() {
         super.onCreate()
 
+        cookieManager = InstaCookieManager(Settings.getHeaderStorage(applicationContext))
+
         AppDatabase.initDatabase(applicationContext, "instabot_db")
-        HttpClient.initClient(applicationContext, InstaCookieManager(Settings.getHeaderStorage(applicationContext)))
+        HttpClient.initClient(applicationContext, cookieManager)
     }
 
 }

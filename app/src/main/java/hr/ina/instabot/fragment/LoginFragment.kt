@@ -7,6 +7,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.webkit.*
+import hr.ina.instabot.App
 import hr.ina.instabot.R
 import hr.ina.instabot.core.InstaResponse
 import hr.ina.instabot.core.InstaResponseCallback
@@ -52,7 +53,7 @@ class LoginFragment : BaseFragment() {
                 if (request?.url?.path?.contains("ajax/bz") == true &&
                         request.requestHeaders["X-IG-WWW-Claim"]?.equals("0") == false) {
                     if (context != null) {
-                        val man = InstaCookieManager(Settings.getHeaderStorage(context!!))
+                        val man = (activity?.application as App).cookieManager
 
                         man.importHeaders(request.requestHeaders)
 

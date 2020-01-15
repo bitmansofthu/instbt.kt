@@ -5,6 +5,7 @@ import android.util.Log
 import android.view.*
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import hr.ina.instabot.App
 import hr.ina.instabot.R
 import hr.ina.instabot.core.InstaBot
 import hr.ina.instabot.core.WebInstaRequest
@@ -35,8 +36,8 @@ class InstaBotFragment : BaseFragment() {
         const val MAX_MEDIA_FOR_HASHTAG = 10
         const val MIN_USER_FOR_UNFOLLOW = 10
         const val DEFAULT_ACTION_INTERVAL_MINUTES : Long = 2
-        const val DEFAULT_ACTION_DELAY_MIN_SECONDS : Long = 20
-        const val DEFAULT_ACTION_DELAY_MAX_SECONDS : Long = 180
+        const val DEFAULT_ACTION_DELAY_MIN_SECONDS : Long = 10
+        const val DEFAULT_ACTION_DELAY_MAX_SECONDS : Long = 70
 
         const val TAG = "InstabotFragment"
     }
@@ -55,8 +56,7 @@ class InstaBotFragment : BaseFragment() {
 
         actionActivityAdapter = ActionActivityAdapter(context!!)
 
-        val hdrs = Settings.getHeaderStorage(context!!)
-        val cookie = InstaCookieManager(hdrs)
+        val cookie = (activity?.application as App).cookieManager
         instabot = InstaBotModel(
             hashtags,
             arrayOf(
