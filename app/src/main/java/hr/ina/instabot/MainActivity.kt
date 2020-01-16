@@ -4,7 +4,6 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import hr.ina.instabot.fragment.Navigation
 import hr.ina.instabot.network.InstaCookieManager
-import hr.ina.instabot.util.Settings
 
 class MainActivity : AppCompatActivity() {
 
@@ -20,7 +19,6 @@ class MainActivity : AppCompatActivity() {
         //    }
         //})
 
-        val hdrs = Settings.getHeaderStorage(this)
         val cookie = (application as App).cookieManager
 
         if (cookie.isLoggedIn)

@@ -21,6 +21,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_item.*
+import kotlinx.android.synthetic.main.fragment_instabot.*
 import kotlinx.android.synthetic.main.fragment_instabot.view.*
 import java.lang.IllegalStateException
 import java.util.concurrent.TimeUnit
@@ -165,7 +166,17 @@ class InstaBotFragment : BaseFragment() {
                     }
                 }.toObservable()
             }
+            .doOnNext {
+                current_hashtag.text = getString(R.string.delaying, "#${instabot.currentHashtag}")
+            }
             .delay((DEFAULT_ACTION_DELAY_MIN_SECONDS..DEFAULT_ACTION_DELAY_MAX_SECONDS).random(), TimeUnit.SECONDS)
+            .doOnNext {
+                when (it) {
+                    InstaAction.LIKE -> current_hashtag.text = getString(R.string.trying_like)
+                    InstaAction.FOLLOW -> current_hashtag.text = getString(R.string.trying_follow)
+                    InstaAction.UNFOLLOW -> current_hashtag.text = getString(R.string.trying_unfollow)
+                }
+            }
             .flatMap {action ->
                 when (action) {
                     InstaAction.LIKE -> instabot.obtainMedia(MAX_MEDIA_FOR_HASHTAG).flatMap {

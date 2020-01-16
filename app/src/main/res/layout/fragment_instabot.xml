@@ -20,6 +20,7 @@
         android:background="@android:color/holo_green_dark"
         android:textColor="@android:color/white"
         android:textAlignment="center"
+        android:textSize="20sp"
         android:layout_alignParentBottom="true" />
 
     <androidx.recyclerview.widget.RecyclerView
