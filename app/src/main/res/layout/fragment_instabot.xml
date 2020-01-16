@@ -9,6 +9,7 @@
         android:padding="3dp"
         android:background="@android:color/holo_orange_dark"
         android:textColor="@android:color/white"
+        android:clickable="true"
         android:visibility="gone"/>
 
     <TextView

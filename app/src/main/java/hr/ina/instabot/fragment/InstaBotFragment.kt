@@ -20,6 +20,7 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.schedulers.Schedulers
+import kotlinx.android.synthetic.main.activity_item.*
 import kotlinx.android.synthetic.main.fragment_instabot.view.*
 import java.lang.IllegalStateException
 import java.util.concurrent.TimeUnit
@@ -35,7 +36,7 @@ class InstaBotFragment : BaseFragment() {
 
         const val MAX_MEDIA_FOR_HASHTAG = 10
         const val MIN_USER_FOR_UNFOLLOW = 10
-        const val DEFAULT_ACTION_INTERVAL_MINUTES : Long = 2
+        const val DEFAULT_ACTION_INTERVAL_MINUTES : Long = 3
         const val DEFAULT_ACTION_DELAY_MIN_SECONDS : Long = 10
         const val DEFAULT_ACTION_DELAY_MAX_SECONDS : Long = 70
 
@@ -46,6 +47,8 @@ class InstaBotFragment : BaseFragment() {
     lateinit var instabot : InstaBotModel
 
     lateinit var actionActivityAdapter: ActionActivityAdapter
+
+    var errorOccured = false
 
     val hashtags = arrayOf("instahun", "mutimitcsinalsz", "budapest", "magyarig", "ikozosseg", "mik", "like4like", "magyarinsta", "instagood", "hungariangirl", "sayyes", "eskuvo", "wedding", "mutimiteszel", "ihungary")
 
@@ -92,14 +95,61 @@ class InstaBotFragment : BaseFragment() {
             layoutManager.orientation))
 
         activity?.title = "TestBot"
+
+        view.error_status.setOnClickListener {
+            clearError()
+            actionActivityAdapter.clear()
+
+            startBot()
+        }
     }
 
     override fun onStart() {
         super.onStart()
 
+        if (!errorOccured) {
+            startBot()
+        }
+    }
+
+    override fun onStop() {
+        super.onStop()
+
+        compositeDisposable.dispose()
+
+        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.fragment_testbot, menu)
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.action_logout -> {
+                clearError()
+                actionActivityAdapter.clear()
+
+                navigation.logout().show(true,"logout")
+
+                return true
+            }
+        }
+
+        return false
+    }
+
+    private fun clearError() {
+        errorOccured = false
+        view?.error_status?.visibility = View.GONE
+    }
+
+    private fun startBot() {
         compositeDisposable = CompositeDisposable()
 
         activity?.window?.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+
+        view?.current_hashtag?.text = getString(R.string.bot_started)
 
         val ticker = Observable.interval(0, DEFAULT_ACTION_INTERVAL_MINUTES, TimeUnit.MINUTES)
             .subscribeOn(Schedulers.io())
@@ -136,36 +186,13 @@ class InstaBotFragment : BaseFragment() {
 
                 view?.error_status?.text = it.message
                 view?.error_status?.visibility = View.VISIBLE
+                errorOccured = true
+
+                activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
 
                 //compositeDisposable.dispose()
             })
         compositeDisposable.add(ticker)
-    }
-
-    override fun onStop() {
-        super.onStop()
-
-        compositeDisposable.dispose()
-
-        view?.error_status?.visibility = View.GONE
-
-        activity?.window?.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
-    }
-
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.fragment_testbot, menu)
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
-            R.id.action_logout -> {
-                navigation.logout().show(true,"logout")
-
-                return true
-            }
-        }
-
-        return false
     }
 
 }

@@ -23,6 +23,11 @@ class ActionActivityAdapter(val context : Context) : RecyclerView.Adapter<ViewHo
         notifyDataSetChanged()
     }
 
+    fun clear() {
+        entries.clear()
+        notifyDataSetChanged()
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         return ViewHolder(LayoutInflater.from(context).inflate(R.layout.activity_item, parent, false))
     }

@@ -183,7 +183,7 @@ class ExampleInstrumentedTest {
     fun testMediaDb() {
         val mediaId = "test12345678"
 
-        val media = InstaMedia(mediaId = mediaId, likeResponseCode = 200)
+        val media = InstaMedia(mediaId = mediaId, shortCode = "1234567")
         AppDatabase.getDatabase()?.instaMediaDao()?.insertMedia(media)
 
         var read = AppDatabase.getDatabase()?.instaMediaDao()?.findMediaById(mediaId)
