@@ -283,19 +283,21 @@ class InstaBotModel(hashtags: Array<String>,
                         if (database.instaUserDao().getNumberOfUsers() >= MIN_USER_FOR_UNFOLLOW) {
                             val user = database.instaUserDao().getRandomuser()
 
-                            val resp = instabot.unfollow(user!!)
+                            if (user != null) {
+                                database.instaUserDao().deleteUser(user)
 
-                            database.instaUserDao().deleteUser(user)
+                                val resp = instabot.unfollow(user)
 
-                            actionsForHashtag++
-                            it.onSuccess(
-                                InstaBotActionResult(
-                                    InstaAction.LIKE,
-                                    user.name,
-                                    null,
-                                    null
+                                actionsForHashtag++
+                                it.onSuccess(
+                                    InstaBotActionResult(
+                                        InstaAction.LIKE,
+                                        user.name,
+                                        null,
+                                        null
+                                    )
                                 )
-                            )
+                            }
                         } else {
                             throw IllegalStateException("Not enough user for unfollow")
                         }

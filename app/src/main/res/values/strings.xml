@@ -6,5 +6,5 @@
     <string name="delaying">Delaying&#8230; %1$s</string>
     <string name="trying_like">Trying to Like&#8230;</string>
     <string name="trying_follow">Trying to Follow&#8230;</string>
-    <string name="trying_unfollow">Preparing to Unfollow&#8230;</string>
+    <string name="trying_unfollow">Trying to Unfollow&#8230;</string>
 </resources>
